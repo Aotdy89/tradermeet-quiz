@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRADER MEET QUIZ · Admin</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Noto+Sans+Lao:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body{min-height:100vh;overflow-x:hidden}
+  #login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px;text-align:center}
+  #login input{padding:14px;border-radius:12px;border:2px solid var(--line);background:#02161e;color:var(--ink);font-size:22px;text-align:center;letter-spacing:.2em;width:280px}
+  /* top bar */
+  .bar{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid #ffffff14;flex-wrap:wrap}
+  .bar .tabs{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+  .tab{background:transparent;color:var(--mut);padding:8px 14px;border-radius:10px;font-weight:600}
+  .tab.on{background:var(--card);color:var(--ink)}
+  /* stage (projector) */
+  #stage{height:calc(100vh - 58px - 76px);min-height:520px;display:flex;flex-direction:column;padding:2.2vh 3vw;gap:2vh;position:relative}
+  #controls{height:76px;display:flex;align-items:center;gap:10px;padding:0 18px;border-top:1px solid #ffffff14;background:#021820;flex-wrap:wrap}
+  #controls .info{margin-right:auto;color:var(--mut);font-size:15px}
+  .lobby{flex:1;display:grid;grid-template-columns:auto 1fr;gap:4vw;align-items:center}
+  .qrbox{background:#fff;padding:18px;border-radius:22px;text-align:center;color:#04202b}
+  .qrbox #qr img,.qrbox #qr canvas{width:min(34vh,380px)!important;height:min(34vh,380px)!important}
+  .qrbox .u{font-family:Montserrat;font-weight:800;font-size:clamp(12px,1.3vw,18px);margin-top:8px;word-break:break-all}
+  .lobby h1{font-size:clamp(34px,5vw,78px);line-height:1.05}
+  .count{font-family:Montserrat;font-weight:800;font-size:clamp(40px,6vw,96px);color:var(--gold);line-height:1}
+  .names{display:flex;flex-wrap:wrap;gap:8px;margin-top:2vh;max-height:26vh;overflow:hidden}
+  .names span{background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:99px;font-size:clamp(13px,1.2vw,18px)}
+  .qhead{display:flex;align-items:center;gap:18px}
+  .qhead .no{font-family:Montserrat;font-weight:800;color:var(--gold);font-size:clamp(16px,1.6vw,24px);letter-spacing:.06em}
+  .ring{margin-left:auto;width:clamp(70px,9vh,110px);height:clamp(70px,9vh,110px);border-radius:50%;display:grid;place-items:center;font-family:Montserrat;font-weight:800;font-size:clamp(28px,4vh,46px);background:conic-gradient(var(--gold) var(--p,100%),#ffffff1a 0)}
+  .ring b{width:80%;height:80%;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+  .answered{text-align:center;font-family:Montserrat;font-weight:800;font-size:clamp(22px,2.6vw,38px)}
+  .answered small{display:block;font-family:"Noto Sans Lao";font-weight:400;font-size:clamp(12px,1vw,16px);color:var(--mut)}
+  .qbig{font-size:clamp(28px,3.6vw,60px);line-height:1.25;font-weight:800;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;padding:0 2vw}
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:1.6vh 1.4vw}
+  .tile{display:flex;align-items:center;gap:16px;color:#fff;border-radius:18px;padding:2vh 1.4vw;font-size:clamp(18px,2vw,34px);font-weight:600;position:relative;min-height:9vh;box-shadow:0 6px 0 #0005}
+  .tile .shape{font-size:1.1em}
+  .tile.wrong{opacity:.28}
+  .tile.right{outline:6px solid #fff}
+  .tile .n{margin-left:auto;font-family:Montserrat;font-weight:800;font-size:1.1em;background:#0003;padding:2px 14px;border-radius:12px}
+  .board{flex:1;display:flex;flex-direction:column;gap:1vh;max-width:1100px;width:100%;margin:0 auto}
+  .board h2{text-align:center;font-size:clamp(26px,3vw,48px);margin-bottom:1vh}
+  .row{display:flex;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.1vh 1.4vw;font-size:clamp(17px,1.8vw,30px)}
+  .row .r{font-family:Montserrat;font-weight:800;width:2.2em;color:var(--mut)}
+  .row.t1{background:linear-gradient(90deg,#8a6a00,#3d2f00);border-color:var(--gold)} .row.t1 .r{color:var(--gold)}
+  .row.t2{border-color:#cfd8dc}.row.t3{border-color:#d08b4a}
+  .row .s{margin-left:auto;font-family:Montserrat;font-weight:800;color:var(--gold)}
+  .podium{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2vw;padding-bottom:2vh}
+  .pod{display:flex;flex-direction:column;align-items:center;gap:1vh;width:min(26vw,340px)}
+  .pod .nm{font-size:clamp(20px,2.4vw,40px);font-weight:800;text-align:center;word-break:break-word}
+  .pod .sc{font-family:Montserrat;font-weight:800;color:var(--gold);font-size:clamp(16px,1.8vw,30px)}
+  .pod .blk{width:100%;border-radius:16px 16px 0 0;display:grid;place-items:center;font-family:Montserrat;font-weight:800;font-size:clamp(40px,6vw,90px)}
+  .pod.p1 .blk{height:38vh;background:linear-gradient(#ffd23f,#b8901a);color:#3d2f00}
+  .pod.p2 .blk{height:27vh;background:linear-gradient(#e0e6e8,#8fa1a6);color:#2b3538}
+  .pod.p3 .blk{height:20vh;background:linear-gradient(#e7a56a,#a0602a);color:#3a210c}
+  .crown{font-size:clamp(40px,6vw,80px)}
+  /* editor */
+  #editor,#settings{padding:18px;max-width:980px;margin:0 auto}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+  .qcard textarea,.qcard input[type=text]{width:100%;background:#02161e;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:16px}
+  .qcard textarea{min-height:56px;resize:vertical}
+  .chrow{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .chrow input[type=radio]{width:22px;height:22px;accent-color:var(--ok)}
+  .qtools{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+  .qtools input[type=number]{width:70px;background:#02161e;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px}
+  .mini{background:#ffffff14;color:var(--ink);border-radius:8px;padding:6px 10px;font-size:14px}
+  .stick{position:sticky;bottom:0;background:#021820ee;padding:12px 0;display:flex;gap:10px;flex-wrap:wrap}
+  #pnames{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  #pnames button{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:6px 12px}
+  @media (max-width:760px){ .lobby{grid-template-columns:1fr;justify-items:center;text-align:center} .grid4{grid-template-columns:1fr} #stage{height:auto} }
+</style>
+</head>
+<body>
+
+<section id="login">
+  <div class="logos"><img class="if" src="logo_ifund.jpg" alt="IFUND"><img src="logo_dupoin.png" alt="Dupoin"></div>
+  <h1 class="brand">TRADER MEET QUIZ <span class="gold">ADMIN</span></h1>
+  <input id="pin" type="password" placeholder="PIN" autocomplete="current-password">
+  <button class="btn" id="loginBtn" style="width:280px">ເຂົ້າສູ່ລະບົບ</button>
+</section>
+
+<section id="adminUI" class="hidden">
+  <div class="bar">
+    <div class="logos"><img class="if" src="logo_ifund.jpg" alt="IFUND" style="height:38px;width:38px"><img src="logo_dupoin.png" alt="Dupoin" style="height:38px;width:38px"></div>
+    <div class="brand" style="font-size:18px">TRADER MEET <span class="gold">QUIZ</span></div>
+    <div class="tabs">
+      <button class="tab on" data-t="stageWrap">🎮 ຈໍເກມ</button>
+      <button class="tab" data-t="editor">✏️ ແກ້ໄຂຄຳຖາມ</button>
+      <button class="tab" data-t="settings">⚙️ ຕັ້ງຄ່າ</button>
+      <button class="tab" id="fs">⛶ ເຕັມຈໍ</button>
+    </div>
+  </div>
+
+  <div id="stageWrap">
+    <div id="stage"></div>
+    <div id="controls">
+      <div class="info" id="info"></div>
+      <span id="ctl"></span>
+    </div>
+  </div>
+
+  <div id="editor" class="hidden">
+    <p class="mut" style="margin-bottom:12px">ແກ້ໄຂ/ເພີ່ມ/ລົບ ຄຳຖາມ · ໝາຍວົງມົນ = ຄຳຕອບທີ່ຖືກ · ກົດ "ບັນທຶກ" ກ່ອນເລີ່ມເກມ</p>
+    <div id="qlist"></div>
+    <div class="stick">
+      <button class="btn sec" id="addQ">+ ເພີ່ມຄຳຖາມ</button>
+      <button class="btn" id="saveQ">💾 ບັນທຶກ</button>
+      <button class="btn sec" id="expQ">⬇ Export JSON</button>
+      <label class="btn sec" style="display:inline-block">⬆ Import JSON<input type="file" id="impQ" accept=".json" hidden></label>
+    </div>
+  </div>
+
+  <div id="settings" class="hidden">
+    <div class="qcard">
+      <h3 style="margin-bottom:10px">ລິ້ງເຂົ້າຫຼິ້ນ</h3>
+      <div id="joinUrl" class="gold" style="word-break:break-all"></div>
+    </div>
+    <div class="qcard">
+      <h3 style="margin-bottom:10px">ຜູ້ຫຼິ້ນ (ກົດຊື່ເພື່ອເຊື່ອງຊື່ທີ່ບໍ່ເໝາະສົມ)</h3>
+      <div id="pnames"></div>
+    </div>
+    <div class="qcard">
+      <h3 style="margin-bottom:10px">ເກມໃໝ່</h3>
+      <p class="mut" style="margin-bottom:10px">ເລີ່ມຮອບໃໝ່: ຄະແນນທັງໝົດກັບເປັນ 0 ແລະ ທຸກຄົນຕ້ອງສະແກນເຂົ້າໃໝ່ (ຂໍ້ມູນຮອບເກົ່າຍັງເກັບໄວ້)</p>
+      <button class="btn red" id="newGame">🔄 ເລີ່ມເກມໃໝ່</button>
+    </div>
+    <div class="qcard">
+      <h3 style="margin-bottom:10px">ປ່ຽນ PIN ແອດມິນ</h3>
+      <input type="password" id="newPin" placeholder="PIN ໃໝ່ (ຢ່າງໜ້ອຍ 6 ຕົວ)" style="padding:10px;border-radius:10px;border:1px solid var(--line);background:#02161e;color:var(--ink);width:260px">
+      <button class="btn sec" id="setPin">ປ່ຽນ PIN</button>
+    </div>
+  </div>
+</section>
+<div class="toast hidden" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="config.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+let PIN = null, S = null, ST = null, Q = [], lastKey = "", raf = 0, autoRevealed = -1, polling = 0;
+const joinUrl = new URL("./", location.href).href;
+
+function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.remove("hidden"); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.add("hidden"),3000); }
+async function A(name, args){ return TM.rpc(name, Object.assign({ p_pin: PIN }, args || {})); }
+
+// ---------- login ----------
+async function login(pin){
+  try{ await TM.rpc("admin_login", { p_pin: pin }); PIN = pin; try{ sessionStorage.setItem("tm_pin", pin) }catch(e){}
+    $("#login").classList.add("hidden"); $("#adminUI").classList.remove("hidden"); start();
+  }catch(e){ toast("PIN ບໍ່ຖືກຕ້ອງ"); try{ sessionStorage.removeItem("tm_pin") }catch(e){} }
+}
+$("#loginBtn").onclick = () => login($("#pin").value.trim());
+$("#pin").addEventListener("keydown", e => { if(e.key === "Enter") login($("#pin").value.trim()); });
+
+// ---------- tabs ----------
+document.querySelectorAll(".tab[data-t]").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tab[data-t]").forEach(x => x.classList.toggle("on", x === b));
+  ["stageWrap","editor","settings"].forEach(id => $("#"+id).classList.toggle("hidden", id !== b.dataset.t));
+  if(b.dataset.t === "editor") loadQ();
+  if(b.dataset.t === "settings") renderNames();
+});
+$("#fs").onclick = () => { if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(()=>{}); };
+
+// ---------- state loop ----------
+async function poll(){
+  try{ ST = await A("admin_status"); TM.syncClock(ST); S = ST; render(); }catch(e){ if(String(e.message).includes("bad pin")){ location.reload(); } }
+}
+function start(){
+  $("#joinUrl").textContent = joinUrl;
+  poll();
+  TM.sb.channel("game").on("postgres_changes", { event: "UPDATE", schema: "public", table: "game" }, () => poll()).subscribe();
+  polling = setInterval(poll, 1000);
+}
+
+function render(){
+  const key = S.phase + "|" + S.q_index + "|" + S.round_id;
+  const info = `👥 ${S.players} ຄົນ` + (S.phase === "question" || S.phase === "reveal" ? ` · ຕອບແລ້ວ ${ST.answered}` : "") + ` · ຄຳຖາມ ${Math.max(0,S.q_index+1)}/${S.q_total}`;
+  $("#info").textContent = info;
+  if(key !== lastKey){ lastKey = key; draw(); }
+  else live();
+  if(!$("#settings").classList.contains("hidden")) renderNames();
+}
+
+function controls(html){ $("#ctl").innerHTML = html; $("#ctl").querySelectorAll("[data-a]").forEach(b => b.onclick = () => act(b.dataset.a, b)); }
+
+async function act(a, btn){
+  if(btn) btn.disabled = true;
+  try{
+    if(a === "start0") await A("admin_start", { p_index: 0 });
+    else if(a === "next") await A("admin_start", { p_index: S.q_index + 1 });
+    else if(a === "reveal") await A("admin_reveal");
+    else if(a === "board") await A("admin_phase", { p_phase: "board" });
+    else if(a === "end") await A("admin_phase", { p_phase: "ended" });
+    else if(a === "lobby") await A("admin_phase", { p_phase: "lobby" });
+    await poll();
+  }catch(e){ toast("ຜິດພາດ: " + e.message); if(btn) btn.disabled = false; }
+}
+
+function draw(){
+  cancelAnimationFrame(raf);
+  const st = $("#stage");
+  if(S.phase === "lobby"){
+    st.innerHTML = `<div class="lobby">
+      <div class="qrbox"><div id="qr"></div><div class="u">${TM.esc(joinUrl.replace(/^https?:\/\//,""))}</div></div>
+      <div>
+        <div class="brand gold" style="font-size:clamp(14px,1.4vw,22px)">IFUND ACADEMY × Dupoin · TRADER MEET ຄັ້ງທີ 2</div>
+        <h1>ສະແກນ QR<br>ເຂົ້າຫຼິ້ນ <span class="gold">QUIZ</span> 🏆</h1>
+        <div style="display:flex;align-items:baseline;gap:14px;margin-top:2vh"><div class="count" id="cnt">${S.players}</div><div style="font-size:clamp(18px,2vw,32px)">ຄົນເຂົ້າແລ້ວ</div></div>
+        <div class="names" id="names"></div>
+      </div></div>`;
+    new QRCode($("#qr"), { text: joinUrl, width: 380, height: 380, colorDark: "#04202b", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+    controls(S.q_total > 0 ? `<button class="btn" data-a="start0">▶ ເລີ່ມເກມ (ຄຳຖາມທີ 1)</button>` : `<span class="mut">ຍັງບໍ່ມີຄຳຖາມ — ໄປແຖບ ແກ້ໄຂຄຳຖາມ</span>`);
+    live();
+  } else if(S.phase === "question" || S.phase === "reveal"){
+    const rev = S.phase === "reveal";
+    const ch = S.choices || [];
+    const tot = rev ? Math.max(1, (S.counts||[]).reduce((a,b)=>a+b,0)) : 1;
+    st.innerHTML = `
+      <div class="qhead"><div class="no">ຄຳຖາມ ${S.q_index+1} / ${S.q_total}</div>
+        <div class="answered" id="ansd" style="margin-left:auto">${ST.answered}<small>ຕອບແລ້ວ</small></div>
+        <div class="ring" id="ring" style="margin-left:24px"><b id="sec">${rev ? "✓" : Math.ceil(TM.remaining(S)/1000)}</b></div></div>
+      <div class="qbig rise">${TM.esc(S.q_text)}</div>
+      <div class="grid4">${ch.map((c,i)=>`
+        <div class="tile c${i} ${rev ? (i===S.correct?'right':'wrong') : ''} rise" style="animation-delay:${.08*i}s">
+          <span class="shape">${TM.letters[i]}</span><span>${TM.esc(c)}</span>
+          ${rev ? `<span class="n">${(S.counts||[])[i]||0}</span>` : ""}</div>`).join("")}</div>`;
+    const last = S.q_index + 1 >= S.q_total;
+    if(rev){
+      controls(`<button class="btn sec" data-a="board">📊 ຕາຕະລາງຄະແນນ</button> ` + (last
+        ? `<button class="btn" data-a="end">🏆 ປະກາດຜູ້ຊະນະ</button>`
+        : `<button class="btn" data-a="next">▶ ຄຳຖາມຕໍ່ໄປ</button>`));
+    } else {
+      controls(`<button class="btn" data-a="reveal">⏹ ເປີດເສີຍຄຳຕອບ</button>`);
+      const f = () => {
+        if(S.phase !== "question") return;
+        const rem = TM.remaining(S);
+        const sec = $("#sec"), ring = $("#ring");
+        if(sec) sec.textContent = Math.ceil(rem/1000);
+        if(ring) ring.style.setProperty("--p", (100*rem/(S.duration*1000)) + "%");
+        if(rem <= 0 && autoRevealed !== S.q_index){ autoRevealed = S.q_index; setTimeout(() => act("reveal"), 1200); return; }
+        raf = requestAnimationFrame(f);
+      };
+      f();
+    }
+  } else if(S.phase === "board"){
+    st.innerHTML = `<div class="board"><h2>📊 ຕາຕະລາງຄະແນນ <span class="gold">TOP 10</span></h2><div id="rows"></div></div>`;
+    TM.rpc("leaderboard", { p_limit: 10 }).then(rows => {
+      $("#rows").innerHTML = rows.map((r,i)=>`<div class="row ${i<3?'t'+(i+1):''} rise" style="animation-delay:${(9-i)*.07}s">
+        <span class="r">${i+1}</span><span>${TM.esc(r.name)}</span><span class="mut" style="font-size:.7em">✓${r.ncorrect}</span><span class="s">${r.score.toLocaleString()}</span></div>`).join("") || `<p class="mut" style="text-align:center">ຍັງບໍ່ມີຄະແນນ</p>`;
+    });
+    const last = S.q_index + 1 >= S.q_total;
+    controls(last ? `<button class="btn" data-a="end">🏆 ປະກາດຜູ້ຊະນະ</button>` : `<button class="btn" data-a="next">▶ ຄຳຖາມຕໍ່ໄປ (${S.q_index+2}/${S.q_total})</button>`);
+  } else if(S.phase === "ended"){
+    st.innerHTML = `<h2 style="text-align:center;font-size:clamp(28px,3.4vw,56px)">🏆 ຜູ້ຊະນະ TRADER MEET QUIZ</h2><div class="podium" id="pod"></div>`;
+    TM.rpc("leaderboard", { p_limit: 3 }).then(rows => {
+      const order = [1,0,2];
+      $("#pod").innerHTML = order.filter(i => rows[i]).map(i => `<div class="pod p${i+1} rise" style="animation-delay:${[.6,1.2,0][i]}s">
+        ${i===0?'<div class="crown pop" style="animation-delay:1.4s">👑</div>':''}
+        <div class="nm">${TM.esc(rows[i].name)}</div><div class="sc">${rows[i].score.toLocaleString()} ຄະແນນ</div>
+        <div class="blk">${i+1}</div></div>`).join("");
+      setTimeout(fire, 1500);
+    });
+    controls(`<button class="btn sec" data-a="board">📊 ເບິ່ງ TOP 10</button>`);
+  }
+}
+
+function live(){
+  if(S.phase === "lobby"){
+    const c = $("#cnt"); if(c) c.textContent = S.players;
+    const n = $("#names"); if(n) n.innerHTML = (ST.names||[]).slice(0,60).map(x=>`<span>${TM.esc(x.name)}</span>`).join("");
+  }
+  if(S.phase === "question"){
+    const a = $("#ansd"); if(a) a.innerHTML = `${ST.answered}<small>ຕອບແລ້ວ / ${S.players}</small>`;
+    if(ST.answered >= S.players && S.players > 0 && autoRevealed !== S.q_index && TM.remaining(S) > 0){ autoRevealed = S.q_index; setTimeout(() => act("reveal"), 900); }
+  }
+}
+
+function fire(){
+  if(typeof confetti !== "function") return;
+  const end = Date.now() + 3500;
+  (function f(){ confetti({ particleCount: 6, angle: 60, spread: 70, origin: { x: 0 } }); confetti({ particleCount: 6, angle: 120, spread: 70, origin: { x: 1 } }); if(Date.now() < end) requestAnimationFrame(f); })();
+}
+
+// ---------- settings ----------
+function renderNames(){
+  const box = $("#pnames"); if(!ST) return;
+  box.innerHTML = (ST.names||[]).map(x => `<button data-id="${x.id}">${TM.esc(x.name)} ✕</button>`).join("") || `<span class="mut">ຍັງບໍ່ມີຜູ້ຫຼິ້ນ</span>`;
+  box.querySelectorAll("button").forEach(b => b.onclick = async () => {
+    if(!confirm("ເຊື່ອງຊື່ \"" + b.textContent.replace(" ✕","") + "\" ອອກຈາກເກມ?")) return;
+    try{ await A("admin_hide_player", { p_player: b.dataset.id }); poll(); }catch(e){ toast(e.message); }
+  });
+}
+$("#newGame").onclick = async () => {
+  if(!confirm("ເລີ່ມເກມໃໝ່? ຄະແນນຮອບນີ້ຈະລີເຊັດ ແລະ ທຸກຄົນຕ້ອງເຂົ້າໃໝ່")) return;
+  try{ await A("admin_new_game"); autoRevealed = -1; toast("ເລີ່ມເກມໃໝ່ແລ້ວ"); poll(); document.querySelector('.tab[data-t=stageWrap]').click(); }catch(e){ toast(e.message); }
+};
+$("#setPin").onclick = async () => {
+  const n = $("#newPin").value.trim();
+  if(n.length < 6){ toast("PIN ຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວ"); return; }
+  try{ await A("admin_set_pin", { p_new: n }); PIN = n; try{ sessionStorage.setItem("tm_pin", n) }catch(e){} $("#newPin").value = ""; toast("ປ່ຽນ PIN ແລ້ວ"); }catch(e){ toast(e.message); }
+};
+
+// ---------- editor ----------
+async function loadQ(){ try{ Q = await A("admin_get_questions"); drawQ(); }catch(e){ toast(e.message); } }
+function drawQ(){
+  $("#qlist").innerHTML = Q.map((q,i) => `<div class="qcard" data-i="${i}">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><b class="gold">#${i+1}</b>
+      <span class="mut" style="margin-left:auto">ເວລາ</span><input type="number" min="5" max="120" value="${q.duration||20}" data-f="duration" style="width:70px;background:#02161e;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px"><span class="mut">ວິ</span></div>
+    <textarea data-f="text">${TM.esc(q.text)}</textarea>
+    ${[0,1,2,3].map(j => `<div class="chrow"><input type="radio" name="c${i}" value="${j}" ${q.correct===j?'checked':''}>
+      <span class="shape c${j}" style="color:#fff">${TM.letters[j]}</span><input type="text" data-c="${j}" value="${TM.esc((q.choices||[])[j]||'')}" placeholder="${j<2?'ຕົວເລືອກ (ຕ້ອງມີ)':'ຕົວເລືອກ (ບໍ່ໃສ່ກໍໄດ້)'}"></div>`).join("")}
+    <div class="qtools"><button class="mini" data-m="up">▲</button><button class="mini" data-m="down">▼</button><button class="mini" data-m="del" style="margin-left:auto;color:var(--bad)">ລົບ</button></div>
+  </div>`).join("");
+  document.querySelectorAll(".qcard[data-i] .mini").forEach(b => b.onclick = () => {
+    readQ(); const i = +b.closest(".qcard").dataset.i;
+    if(b.dataset.m === "del"){ if(!confirm("ລົບຄຳຖາມ #" + (i+1) + "?")) return; Q.splice(i,1); }
+    if(b.dataset.m === "up" && i > 0) [Q[i-1],Q[i]] = [Q[i],Q[i-1]];
+    if(b.dataset.m === "down" && i < Q.length-1) [Q[i+1],Q[i]] = [Q[i],Q[i+1]];
+    drawQ();
+  });
+}
+function readQ(){
+  Q = [...document.querySelectorAll(".qcard[data-i]")].map(card => {
+    const texts = [0,1,2,3].map(j => card.querySelector(`[data-c="${j}"]`).value.trim());
+    let correct = +(card.querySelector("input[type=radio]:checked") || { value: 0 }).value;
+    // drop empty trailing choices, keep correct index pointing at the same text
+    const keep = texts.map((t,j)=>({t,j})).filter(x => x.t);
+    const ci = keep.findIndex(x => x.j === correct);
+    return { text: card.querySelector("[data-f=text]").value.trim(), choices: keep.map(x=>x.t), correct: ci, duration: +card.querySelector("[data-f=duration]").value || 20 };
+  });
+}
+$("#addQ").onclick = () => { readQ(); Q.push({ text: "", choices: ["","","",""], correct: 0, duration: 20 }); drawQ(); window.scrollTo(0, document.body.scrollHeight); };
+$("#saveQ").onclick = async () => {
+  readQ();
+  const bad = Q.findIndex(q => !q.text || q.choices.length < 2 || q.correct < 0);
+  if(bad >= 0){ toast(`ຄຳຖາມ #${bad+1}: ຕ້ອງມີຄຳຖາມ, ຢ່າງໜ້ອຍ 2 ຕົວເລືອກ ແລະ ໝາຍຄຳຕອບທີ່ຖືກ`); return; }
+  if(S && (S.phase === "question" || S.phase === "reveal") && !confirm("ເກມກຳລັງຫຼິ້ນຢູ່ — ບັນທຶກແທນເລີຍບໍ?")) return;
+  try{ const n = await A("admin_save_questions", { p_qs: Q }); toast(`ບັນທຶກແລ້ວ ${n} ຄຳຖາມ`); loadQ(); poll(); }catch(e){ toast("ບັນທຶກບໍ່ໄດ້: " + e.message); }
+};
+$("#expQ").onclick = () => { readQ(); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(Q, null, 1)], { type: "application/json" })); a.download = "tradermeet_questions.json"; a.click(); };
+$("#impQ").onchange = async e => { const f = e.target.files[0]; if(!f) return; try{ const j = JSON.parse(await f.text()); if(!Array.isArray(j)) throw 0; Q = j; drawQ(); toast("ນຳເຂົ້າແລ້ວ — ກົດ ບັນທຶກ"); }catch(_){ toast("ໄຟລ໌ບໍ່ຖືກຕ້ອງ"); } e.target.value = ""; };
+
+// ---------- boot ----------
+TM.init();
+try{ const p = sessionStorage.getItem("tm_pin"); if(p) login(p); }catch(e){}
+</script>
+</body>
+</html>

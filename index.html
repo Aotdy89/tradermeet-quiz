@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>TRADER MEET QUIZ</title>
+<meta name="theme-color" content="#04202b">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Noto+Sans+Lao:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body{display:flex;flex-direction:column;min-height:100dvh}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;gap:10px}
+  header .logos img{height:34px;width:34px;border-radius:8px}
+  header .me{text-align:right;font-size:13px;line-height:1.25}
+  header .me b{font-family:Montserrat;font-size:18px;color:var(--gold)}
+  main{flex:1;display:flex;flex-direction:column;padding:8px 16px 20px;gap:14px}
+  .center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
+  h1{font-size:30px;line-height:1.15}
+  .sub{font-size:15px;color:var(--mut)}
+  .field{width:100%;max-width:360px;padding:16px;border-radius:14px;border:2px solid var(--line);background:#02161e;color:var(--ink);font-size:20px;text-align:center}
+  .field:focus{outline:none;border-color:var(--gold)}
+  .wide{width:100%;max-width:360px}
+  .qno{font-family:Montserrat;font-weight:800;color:var(--gold);font-size:14px;letter-spacing:.08em}
+  .qtext{font-size:21px;line-height:1.35;font-weight:600}
+  .answers{display:grid;grid-template-columns:1fr;gap:10px;flex:1}
+  .ans{display:flex;align-items:center;gap:12px;text-align:left;color:#fff;border-radius:16px;padding:14px 14px;font-size:18px;font-weight:600;min-height:64px;box-shadow:0 5px 0 #0004}
+  .ans:active{transform:translateY(3px);box-shadow:0 2px 0 #0004}
+  .ans.dim{opacity:.3}
+  .ans.pick{outline:4px solid #fff}
+  .big{font-size:64px;line-height:1}
+  .score{font-family:Montserrat;font-weight:800;font-size:44px;color:var(--gold)}
+  .pill{display:inline-block;padding:6px 14px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:15px}
+  .res-ok{color:var(--ok)} .res-bad{color:var(--bad)}
+  .spinner{width:46px;height:46px;border-radius:50%;border:5px solid #ffffff22;border-top-color:var(--gold);animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  footer{text-align:center;font-size:11px;color:var(--mut);padding:0 0 10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logos"><img class="if" src="logo_ifund.jpg" alt="IFUND ACADEMY"><img src="logo_dupoin.png" alt="Dupoin"></div>
+  <div class="me hidden" id="me"><div id="meName"></div><b id="meScore">0</b></div>
+</header>
+<main id="app"></main>
+<footer>IFUND ACADEMY × Dupoin · TRADER MEET ຄັ້ງທີ 2</footer>
+<div class="toast hidden" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const KEY = "tm_player_v1";
+let me = null;            // {id, token, name, round_id}
+let S = null;             // game state
+let P = null;             // player state
+let lastKey = "";         // phase|q_index rendered
+let picked = null;        // local choice for current q
+let timerRAF = 0;
+let busy = false;
+
+function load(){ try{ me = JSON.parse(localStorage.getItem(KEY)) }catch(e){ me = null } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(me)) }catch(e){} }
+function clearMe(){ me = null; try{ localStorage.removeItem(KEY) }catch(e){} }
+function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.remove("hidden"); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.add("hidden"),2600); }
+
+function showMe(){
+  if(!me){ $("#me").classList.add("hidden"); return; }
+  $("#me").classList.remove("hidden");
+  $("#meName").textContent = me.name;
+  $("#meScore").textContent = (P && P.score != null) ? P.score.toLocaleString() : "0";
+}
+
+function renderJoin(){
+  app.innerHTML = `
+  <div class="center rise">
+    <div class="brand gold" style="font-size:14px">IFUND ACADEMY × Dupoin</div>
+    <h1>TRADER MEET<br><span class="gold">QUIZ</span> 🏆</h1>
+    <div class="sub">ຕອບຖືກ ແລະ ໄວ = ຄະແນນຫຼາຍ<br>ຄະແນນສູງສຸດ ຮັບລາງວັນ!</div>
+    <input class="field" id="name" maxlength="24" placeholder="ໃສ່ຊື່ຂອງທ່ານ" autocomplete="nickname">
+    <button class="btn wide" id="go">ເຂົ້າຫຼິ້ນເກມ</button>
+  </div>`;
+  const go = async () => {
+    const n = $("#name").value.trim();
+    if(!n){ toast("ກະລຸນາໃສ່ຊື່ກ່ອນ"); return; }
+    if(busy) return; busy = true; $("#go").disabled = true;
+    try{
+      me = await TM.rpc("join_game", { p_name: n }); save(); lastKey = ""; await refresh(true);
+    }catch(e){ toast(e.message && e.message.includes("full") ? "ຜູ້ຫຼິ້ນເຕັມແລ້ວ" : "ເຊື່ອມຕໍ່ບໍ່ໄດ້ ລອງໃໝ່"); $("#go").disabled = false; }
+    busy = false;
+  };
+  $("#go").onclick = go;
+  $("#name").addEventListener("keydown", e => { if(e.key === "Enter") go(); });
+}
+
+function renderWait(msg){
+  app.innerHTML = `<div class="center rise">
+    <div class="pill">ສະບາຍດີ <b>${TM.esc(me.name)}</b> 👋</div>
+    <div class="spinner"></div>
+    <h1 style="font-size:24px">${msg}</h1>
+    <div class="sub">ເບິ່ງຈໍໃຫຍ່ ແລະ ກຽມນິ້ວໃຫ້ພ້ອມ!</div>
+  </div>`;
+}
+
+function renderQuestion(){
+  const answered = (P && P.answered != null) ? P.answered : picked;
+  const ch = S.choices || [];
+  app.innerHTML = `
+    <div class="qno">ຄຳຖາມ ${S.q_index + 1} / ${S.q_total}</div>
+    <div class="timerbar"><i id="tb"></i></div>
+    <div class="qtext">${TM.esc(S.q_text)}</div>
+    <div class="answers">${ch.map((c,i)=>`
+      <button class="ans c${i} ${answered!=null ? (answered===i?'pick':'dim') : ''}" data-i="${i}" ${answered!=null?'disabled':''}>
+        <span class="shape">${TM.letters[i]}</span><span>${TM.esc(c)}</span></button>`).join("")}
+    </div>
+    <div class="center ${answered!=null?'':'hidden'}" id="sent" style="flex:0"><div class="pill">✅ ສົ່ງຄຳຕອບແລ້ວ — ລໍຖ້າເບິ່ງຜົນ</div></div>`;
+  app.querySelectorAll(".ans").forEach(b => b.onclick = () => answer(+b.dataset.i));
+  tick();
+}
+
+async function answer(i){
+  if(picked != null || (P && P.answered != null)) return;
+  if(TM.remaining(S) <= 0){ toast("ໝົດເວລາແລ້ວ"); return; }
+  picked = i;
+  app.querySelectorAll(".ans").forEach(b => { const j=+b.dataset.i; b.disabled = true; b.classList.add(j===i?'pick':'dim'); });
+  $("#sent").classList.remove("hidden");
+  if(navigator.vibrate) navigator.vibrate(30);
+  try{
+    const r = await TM.rpc("submit_answer", { p_id: me.id, p_token: me.token, p_q: S.q_index, p_choice: i });
+    if(!r.ok){ if(r.why === "late") toast("ຊ້າໄປ — ໝົດເວລາແລ້ວ"); else if(r.why === "closed") toast("ປິດຮັບຄຳຕອບແລ້ວ"); }
+  }catch(e){
+    picked = null; toast("ສົ່ງບໍ່ສຳເລັດ ກົດໃໝ່ອີກຄັ້ງ");
+    app.querySelectorAll(".ans").forEach(b => { b.disabled = false; b.classList.remove('pick','dim'); });
+    $("#sent").classList.add("hidden");
+  }
+}
+
+function tick(){
+  cancelAnimationFrame(timerRAF);
+  const f = () => {
+    const tb = $("#tb"); if(!tb || !S || S.phase !== "question") return;
+    const rem = TM.remaining(S);
+    tb.style.width = (100 * rem / (S.duration*1000)) + "%";
+    if(rem > 0) timerRAF = requestAnimationFrame(f);
+  };
+  f();
+}
+
+function renderReveal(){
+  const ans = P ? P.answered : null;
+  const ok = P && P.is_correct;
+  const c = S.correct;
+  let head;
+  if(ans == null) head = `<div class="big">⏱️</div><h1>ບໍ່ທັນຕອບ</h1>`;
+  else if(ok) head = `<div class="big pop">🎉</div><h1 class="res-ok">ຖືກຕ້ອງ!</h1><div class="score pop">+${(P.points||0).toLocaleString()}</div>`;
+  else head = `<div class="big pop">😅</div><h1 class="res-bad">ຜິດ</h1>`;
+  app.innerHTML = `<div class="center rise">${head}
+    <div class="sub">ຄຳຕອບທີ່ຖືກ:</div>
+    <div class="ans c${c}" style="width:100%;max-width:420px"><span class="shape">${TM.letters[c]}</span><span>${TM.esc((S.choices||[])[c])}</span></div>
+    ${P ? `<div class="pill">ອັນດັບ <b class="gold">${P.rank}</b> / ${P.total} · ${P.score.toLocaleString()} ຄະແນນ</div>` : ""}
+  </div>`;
+}
+
+function renderBoard(){
+  app.innerHTML = `<div class="center rise">
+    <div class="sub">ອັນດັບຂອງທ່ານ</div>
+    <div class="big gold" style="font-family:Montserrat;font-weight:800">#${P ? P.rank : "-"}</div>
+    <div class="score">${P ? P.score.toLocaleString() : 0}</div>
+    <div class="sub">ຈາກ ${P ? P.total : "-"} ຄົນ · ຕອບຖືກ ${P ? P.ncorrect : 0} ຂໍ້</div>
+    <div class="pill">ເບິ່ງຕາຕະລາງຄະແນນຢູ່ຈໍໃຫຍ່ 👀</div>
+  </div>`;
+}
+
+function renderEnd(){
+  const win = P && P.rank === 1 && P.score > 0;
+  const top3 = P && P.rank <= 3 && P.score > 0;
+  app.innerHTML = `<div class="center rise">
+    <div class="big pop">${win ? "🏆" : top3 ? "🥇" : "👏"}</div>
+    <h1>${win ? "ຍິນດີນຳ! ທ່ານເປັນແຊ້ມ" : top3 ? "ຍິນດີນຳ! ທ່ານຕິດ TOP 3" : "ຈົບເກມແລ້ວ ຂອບໃຈທີ່ຮ່ວມຫຼິ້ນ"}</h1>
+    <div class="pill">ອັນດັບ <b class="gold">${P ? P.rank : "-"}</b> / ${P ? P.total : "-"} · ${P ? P.score.toLocaleString() : 0} ຄະແນນ</div>
+    ${top3 ? `<div class="sub" style="font-size:18px;color:var(--gold)">ສະແດງໜ້າຈໍນີ້ໃຫ້ທີມງານ ເພື່ອຮັບລາງວັນ</div>` : ""}
+  </div>`;
+}
+
+async function refresh(force){
+  let st;
+  try{ st = await TM.rpc("get_state"); }catch(e){ return; }
+  TM.syncClock(st); S = st;
+  if(!me){ if(force || lastKey !== "join"){ lastKey = "join"; renderJoin(); } showMe(); return; }
+  if(me.round_id && me.round_id !== S.round_id){ clearMe(); lastKey = "join"; renderJoin(); showMe(); toast("ເກມໃໝ່ເລີ່ມແລ້ວ — ກະລຸນາເຂົ້າຮ່ວມໃໝ່"); return; }
+  const key = S.phase + "|" + S.q_index;
+  const needP = force || key !== lastKey || S.phase !== "lobby";
+  if(needP){
+    try{ P = await TM.rpc("player_state", { p_id: me.id, p_token: me.token }); }catch(e){}
+    if(P === null){ clearMe(); lastKey = "join"; renderJoin(); showMe(); return; }
+    if(P && P.stale){ clearMe(); lastKey = "join"; renderJoin(); showMe(); return; }
+  }
+  showMe();
+  if(!force && key === lastKey) { if(S.phase === "question") tick(); return; }
+  if(key !== lastKey && S.phase === "question") picked = null;
+  lastKey = key;
+  if(S.phase === "lobby") renderWait("ລໍຖ້າເລີ່ມເກມ…");
+  else if(S.phase === "question"){ if(TM.remaining(S) > 0 || (P && P.answered != null)) renderQuestion(); else renderWait("ໝົດເວລາ — ລໍຖ້າເບິ່ງຜົນ"); }
+  else if(S.phase === "reveal") renderReveal();
+  else if(S.phase === "board") renderBoard();
+  else if(S.phase === "ended") renderEnd();
+}
+
+TM.init(); load();
+refresh(true);
+TM.sb.channel("game").on("postgres_changes", { event: "UPDATE", schema: "public", table: "game" }, () => refresh()).subscribe();
+setInterval(refresh, 3000);
+document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(true); });
+</script>
+</body>
+</html>
