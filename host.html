@@ -6,7 +6,7 @@
 <title>TRADER MEET QUIZ · Admin</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Noto+Sans+Lao:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;800&family=Noto+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
   body{min-height:100vh;overflow-x:hidden}
@@ -24,36 +24,36 @@
   .lobby{flex:1;display:grid;grid-template-columns:auto 1fr;gap:4vw;align-items:center}
   .qrbox{background:#fff;padding:18px;border-radius:22px;text-align:center;color:#04202b}
   .qrbox #qr img,.qrbox #qr canvas{width:min(34vh,380px)!important;height:min(34vh,380px)!important}
-  .qrbox .u{font-family:Montserrat;font-weight:800;font-size:clamp(12px,1.3vw,18px);margin-top:8px;word-break:break-all}
+  .qrbox .u{font-weight:800;font-size:clamp(12px,1.3vw,18px);margin-top:8px;word-break:break-all}
   .lobby h1{font-size:clamp(34px,5vw,78px);line-height:1.05}
-  .count{font-family:Montserrat;font-weight:800;font-size:clamp(40px,6vw,96px);color:var(--gold);line-height:1}
+  .count{font-weight:800;font-size:clamp(40px,6vw,96px);color:var(--gold);line-height:1}
   .names{display:flex;flex-wrap:wrap;gap:8px;margin-top:2vh;max-height:26vh;overflow:hidden}
   .names span{background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:99px;font-size:clamp(13px,1.2vw,18px)}
   .qhead{display:flex;align-items:center;gap:18px}
-  .qhead .no{font-family:Montserrat;font-weight:800;color:var(--gold);font-size:clamp(16px,1.6vw,24px);letter-spacing:.06em}
-  .ring{margin-left:auto;width:clamp(70px,9vh,110px);height:clamp(70px,9vh,110px);border-radius:50%;display:grid;place-items:center;font-family:Montserrat;font-weight:800;font-size:clamp(28px,4vh,46px);background:conic-gradient(var(--gold) var(--p,100%),#ffffff1a 0)}
+  .qhead .no{font-weight:800;color:var(--gold);font-size:clamp(16px,1.6vw,24px);}
+  .ring{margin-left:auto;width:clamp(70px,9vh,110px);height:clamp(70px,9vh,110px);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:clamp(28px,4vh,46px);background:conic-gradient(var(--gold) var(--p,100%),#ffffff1a 0)}
   .ring b{width:80%;height:80%;border-radius:50%;background:var(--bg);display:grid;place-items:center}
-  .answered{text-align:center;font-family:Montserrat;font-weight:800;font-size:clamp(22px,2.6vw,38px)}
-  .answered small{display:block;font-family:"Noto Sans Lao";font-weight:400;font-size:clamp(12px,1vw,16px);color:var(--mut)}
+  .answered{text-align:center;font-weight:800;font-size:clamp(22px,2.6vw,38px)}
+  .answered small{display:block;font-weight:400;font-size:clamp(12px,1vw,16px);color:var(--mut)}
   .qbig{font-size:clamp(28px,3.6vw,60px);line-height:1.25;font-weight:800;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;padding:0 2vw}
   .grid4{display:grid;grid-template-columns:1fr 1fr;gap:1.6vh 1.4vw}
   .tile{display:flex;align-items:center;gap:16px;color:#fff;border-radius:18px;padding:2vh 1.4vw;font-size:clamp(18px,2vw,34px);font-weight:600;position:relative;min-height:9vh;box-shadow:0 6px 0 #0005}
   .tile .shape{font-size:1.1em}
   .tile.wrong{opacity:.28}
   .tile.right{outline:6px solid #fff}
-  .tile .n{margin-left:auto;font-family:Montserrat;font-weight:800;font-size:1.1em;background:#0003;padding:2px 14px;border-radius:12px}
+  .tile .n{margin-left:auto;font-weight:800;font-size:1.1em;background:#0003;padding:2px 14px;border-radius:12px}
   .board{flex:1;display:flex;flex-direction:column;gap:1vh;max-width:1100px;width:100%;margin:0 auto}
   .board h2{text-align:center;font-size:clamp(26px,3vw,48px);margin-bottom:1vh}
   .row{display:flex;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.1vh 1.4vw;font-size:clamp(17px,1.8vw,30px)}
-  .row .r{font-family:Montserrat;font-weight:800;width:2.2em;color:var(--mut)}
+  .row .r{font-weight:800;width:2.2em;color:var(--mut)}
   .row.t1{background:linear-gradient(90deg,#8a6a00,#3d2f00);border-color:var(--gold)} .row.t1 .r{color:var(--gold)}
   .row.t2{border-color:#cfd8dc}.row.t3{border-color:#d08b4a}
-  .row .s{margin-left:auto;font-family:Montserrat;font-weight:800;color:var(--gold)}
+  .row .s{margin-left:auto;font-weight:800;color:var(--gold)}
   .podium{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2vw;padding-bottom:2vh}
   .pod{display:flex;flex-direction:column;align-items:center;gap:1vh;width:min(26vw,340px)}
   .pod .nm{font-size:clamp(20px,2.4vw,40px);font-weight:800;text-align:center;word-break:break-word}
-  .pod .sc{font-family:Montserrat;font-weight:800;color:var(--gold);font-size:clamp(16px,1.8vw,30px)}
-  .pod .blk{width:100%;border-radius:16px 16px 0 0;display:grid;place-items:center;font-family:Montserrat;font-weight:800;font-size:clamp(40px,6vw,90px)}
+  .pod .sc{font-weight:800;color:var(--gold);font-size:clamp(16px,1.8vw,30px)}
+  .pod .blk{width:100%;border-radius:16px 16px 0 0;display:grid;place-items:center;font-weight:800;font-size:clamp(40px,6vw,90px)}
   .pod.p1 .blk{height:38vh;background:linear-gradient(#ffd23f,#b8901a);color:#3d2f00}
   .pod.p2 .blk{height:27vh;background:linear-gradient(#e0e6e8,#8fa1a6);color:#2b3538}
   .pod.p3 .blk{height:20vh;background:linear-gradient(#e7a56a,#a0602a);color:#3a210c}
