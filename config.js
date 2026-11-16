@@ -27,5 +27,10 @@ window.TM = {
     return Math.max(0, state.duration * 1000 - (this.now() - state.started_ms));
   },
   letters: ["A", "B", "C", "D"],
+  partName(state, p) { const t = (state && state.parts) || []; return t[(p || 1) - 1] || ""; },
+  partSize(state, p) { return ((state && state.part_sizes) || {})[String(p)] || 0; },
+  // true when the question just played is the last one of its phase (and more questions follow)
+  endOfPart(state) { return state && state.next_part != null && state.next_part !== state.part; },
+  isLast(state) { return state && state.q_index + 1 >= state.q_total; },
   esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 };

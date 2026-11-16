@@ -107,7 +107,7 @@ function renderQuestion(){
   const answered = (P && P.answered != null) ? P.answered : picked;
   const ch = S.choices || [];
   app.innerHTML = `
-    <div class="qno">ຄຳຖາມ ${S.q_index + 1} / ${S.q_total}</div>
+    <div class="qno">ເຟດ ${S.part} · ຄຳຖາມ ${S.part_pos} / ${S.part_total}</div>
     <div class="timerbar"><i id="tb"></i></div>
     <div class="qtext">${TM.esc(S.q_text)}</div>
     <div class="answers">${ch.map((c,i)=>`
@@ -162,9 +162,22 @@ function renderReveal(){
   </div>`;
 }
 
-function renderBoard(){
+function renderIntro(){
   app.innerHTML = `<div class="center rise">
-    <div class="sub">ອັນດັບຂອງທ່ານ</div>
+    <div class="pill">ສະບາຍດີ <b>${TM.esc(me.name)}</b> 👋</div>
+    <div class="brand gold pop" style="font-size:56px;line-height:1">ເຟດ ${S.part}</div>
+    <h1 style="font-size:26px">${TM.esc(TM.partName(S, S.part))}</h1>
+    <div class="sub">${TM.partSize(S, S.part)} ຄຳຖາມ · ຕອບຖືກ ແລະ ໄວ = ຄະແນນຫຼາຍ</div>
+    <div class="spinner"></div>
+    <div class="sub">ກຽມນິ້ວໃຫ້ພ້ອມ — ຄຳຖາມກຳລັງມາ!</div>
+  </div>`;
+}
+
+function renderBoard(){
+  const endP = TM.endOfPart(S);
+  app.innerHTML = `<div class="center rise">
+    ${endP ? `<div class="pill">🏁 ຈົບເຟດ ${S.part} — ຕໍ່ໄປ ເຟດ ${S.next_part}: ${TM.esc(TM.partName(S, S.next_part))}</div>` : ""}
+    <div class="sub">ອັນດັບລວມຂອງທ່ານ</div>
     <div class="big gold" style="font-family:Montserrat;font-weight:800">#${P ? P.rank : "-"}</div>
     <div class="score">${P ? P.score.toLocaleString() : 0}</div>
     <div class="sub">ຈາກ ${P ? P.total : "-"} ຄົນ · ຕອບຖືກ ${P ? P.ncorrect : 0} ຂໍ້</div>
@@ -201,6 +214,7 @@ async function refresh(force){
   if(key !== lastKey && S.phase === "question") picked = null;
   lastKey = key;
   if(S.phase === "lobby") renderWait("ລໍຖ້າເລີ່ມເກມ…");
+  else if(S.phase === "intro") renderIntro();
   else if(S.phase === "question"){ if(TM.remaining(S) > 0 || (P && P.answered != null)) renderQuestion(); else renderWait("ໝົດເວລາ — ລໍຖ້າເບິ່ງຜົນ"); }
   else if(S.phase === "reveal") renderReveal();
   else if(S.phase === "board") renderBoard();
