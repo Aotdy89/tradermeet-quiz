@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ລົງທະບຽນ TRADER MEET ຄັ້ງທີ 2</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04202b">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;800&family=Noto+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  html,body{height:auto;min-height:100%}
+  [hidden]{display:none!important}
+  body{padding:20px 16px 28px}
+  .wrap{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+  .head{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+  .head .x{font-size:13px;letter-spacing:.08em;color:var(--mut);font-weight:600}
+  .head h1{font-size:28px;line-height:1.15;font-weight:800}
+  .facts{width:100%;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:6px;font-size:15px;text-align:left}
+  .facts div{display:flex;gap:10px;align-items:baseline}
+  .facts dt{flex:none;width:58px;color:var(--mut);font-size:13px}
+  .facts b{color:var(--gold)}
+  form,.done{background:#06303f;border:1px solid var(--line);border-radius:18px;padding:18px 16px;display:flex;flex-direction:column;gap:14px}
+  h2{font-size:19px;font-weight:800}
+  label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600}
+  .in{width:100%;padding:13px 14px;border-radius:12px;border:2px solid var(--line);background:#02161e;color:var(--ink);font-size:18px}
+  .in:focus{outline:none;border-color:var(--gold)}
+  .in.err{border-color:var(--bad)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:360px){.row{grid-template-columns:1fr}}
+  fieldset{border:0;display:flex;flex-direction:column;gap:8px}
+  legend{font-size:14px;font-weight:600;margin-bottom:8px}
+  .choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .choice label{position:relative;display:block}
+  .choice input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .choice span{display:block;text-align:center;padding:13px 8px;border-radius:12px;border:2px solid var(--line);background:#02161e;font-size:17px;font-weight:600}
+  .choice input:checked+span{border-color:var(--gold);background:#3a3208;color:var(--gold)}
+  .choice input:focus-visible+span{outline:3px solid var(--teal)}
+  .hint{font-size:13px;color:var(--mut);font-weight:400}
+  .open{background:#083b2c;border:1px solid #2aa35a;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .open b{font-size:16px}
+  .open ol{margin-left:20px;font-size:14px;line-height:1.55;color:var(--ink)}
+  a.btn{display:block;text-align:center;text-decoration:none}
+  .btn.green{background:#2ecc71;color:#04210f;box-shadow:0 4px 0 #1c8a4b}
+  .msg{font-size:14px;color:var(--bad);min-height:1.2em}
+  .small{font-size:12px;color:var(--mut);text-align:center;line-height:1.5}
+  .done{text-align:center;align-items:center}
+  .done .big{font-size:54px;line-height:1}
+  .done p{font-size:15px;line-height:1.55}
+  .sum{width:100%;text-align:left;background:#02161e;border-radius:12px;padding:10px 14px;font-size:15px;line-height:1.7}
+  .linkbtn{background:none;color:var(--teal);text-decoration:underline;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="logos"><img class="if" src="logo_ifund.jpg" alt="IFUND ACADEMY"><img src="logo_dupoin.png" alt="Dupoin"></div>
+    <div class="x">IFUND ACADEMY × DUPOIN</div>
+    <h1>TRADER MEET <span class="gold">ຄັ້ງທີ 2</span></h1>
+    <dl class="facts">
+      <div><dt>ວັນທີ</dt><dd>ວັນອັງຄານ ທີ <b>24 ພະຈິກ 2026</b></dd></div>
+      <div><dt>ເວລາ</dt><dd><b>15:00 ໂມງ</b> ເປັນຕົ້ນໄປ</dd></div>
+      <div><dt>ສະຖານທີ່</dt><dd>ຫ້ອງ VIP ໃຫຍ່ · ຮ້ານອາຫານ ສຸກດາວັນ ດອນໜູນ</dd></div>
+      <div><dt>ບ່ອນນັ່ງ</dt><dd>ຈຳກັດ <b>30 ບ່ອນນັ່ງ</b></dd></div>
+    </dl>
+  </div>
+
+  <form id="f" novalidate>
+    <h2>ລົງທະບຽນເຂົ້າຮ່ວມງານ</h2>
+    <div class="row">
+      <label class="f">ຊື່<input class="in" id="first" name="first" autocomplete="given-name" maxlength="60" required></label>
+      <label class="f">ນາມສະກຸນ<input class="in" id="last" name="last" autocomplete="family-name" maxlength="60" required></label>
+    </div>
+    <label class="f">ເບີໂທລະສັບ<input class="in" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="020 XXXX XXXX" required></label>
+
+    <fieldset>
+      <legend>ທ່ານມີບັນຊີ Dupoin ແລ້ວບໍ?</legend>
+      <div class="choice">
+        <label><input type="radio" name="acct" id="acctYes" value="yes"><span>ມີແລ້ວ</span></label>
+        <label><input type="radio" name="acct" id="acctNo" value="no"><span>ຍັງບໍ່ມີ</span></label>
+      </div>
+    </fieldset>
+
+    <label class="f" id="mt5box" hidden>ເລກບັນຊີ MT5 ຂອງ Dupoin
+      <input class="in" id="mt5" name="mt5" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="ຕົວຢ່າງ 1234567">
+      <span class="hint">ໃສ່ຕົວເລກເທົ່ານັ້ນ</span>
+    </label>
+
+    <div class="open" id="openbox" hidden>
+      <b>ຕ້ອງມີບັນຊີ Dupoin ກ່ອນເຂົ້າຮ່ວມງານ</b>
+      <ol>
+        <li>ກົດປຸ່ມລຸ່ມນີ້ເພື່ອເປີດບັນຊີ Dupoin</li>
+        <li>ກົດ «ລົງທະບຽນ» ເພື່ອສົ່ງຊື່ ແລະ ເບີໂທໄວ້ກ່ອນ</li>
+        <li>ເມື່ອໄດ້ເລກ MT5 ແລ້ວ ກັບມາລິ້ງນີ້ ເລືອກ «ມີແລ້ວ» ແລ້ວໃສ່ເລກ MT5 (ໃຊ້ເບີໂທເດີມ)</li>
+      </ol>
+      <a class="btn green" href="https://dupoin.pro/md63zsv9r" target="_blank" rel="noopener">ເປີດບັນຊີ Dupoin</a>
+    </div>
+
+    <div class="msg" id="msg" role="alert"></div>
+    <button class="btn" id="go" type="submit">ລົງທະບຽນ</button>
+    <div class="small">ຂໍ້ມູນນີ້ໃຊ້ເພື່ອຢືນຢັນການເຂົ້າຮ່ວມງານເທົ່ານັ້ນ</div>
+  </form>
+
+  <div class="done" id="done" hidden>
+    <div class="big" id="dIcon">✅</div>
+    <h2 id="dTitle"></h2>
+    <div class="sum" id="dSum"></div>
+    <p id="dText"></p>
+    <a class="btn green" id="dOpen" href="https://dupoin.pro/md63zsv9r" target="_blank" rel="noopener" hidden>ເປີດບັນຊີ Dupoin</a>
+    <button class="linkbtn" id="again" type="button">ແກ້ໄຂ ຫຼື ເພີ່ມເລກ MT5</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const digits = s => String(s || "").replace(/\D/g, "");
+let busy = false;
+try { TM.init(); } catch (e) {}
+
+function sync(){
+  const yes = $("acctYes").checked, no = $("acctNo").checked;
+  $("mt5box").hidden = !yes;
+  $("openbox").hidden = !no;
+}
+$("acctYes").addEventListener("change", sync);
+$("acctNo").addEventListener("change", sync);
+$("mt5").addEventListener("input", e => { e.target.value = digits(e.target.value).slice(0, 12); });
+document.querySelectorAll(".in").forEach(i => i.addEventListener("input", () => { i.classList.remove("err"); $("msg").textContent = ""; }));
+
+function fail(el, text){ if (el) { el.classList.add("err"); el.focus(); } $("msg").textContent = text; return false; }
+
+function check(){
+  const first = $("first").value.trim(), last = $("last").value.trim(), phone = $("phone").value.trim();
+  if (!first) return fail($("first"), "ກະລຸນາໃສ່ຊື່");
+  if (!last) return fail($("last"), "ກະລຸນາໃສ່ນາມສະກຸນ");
+  const pn = digits(phone).replace(/^(00)?856/, "").replace(/^0+/, "");
+  if (pn.length < 7 || pn.length > 15) return fail($("phone"), "ເບີໂທບໍ່ຖືກຕ້ອງ ກະລຸນາກວດຄືນ");
+  const yes = $("acctYes").checked, no = $("acctNo").checked;
+  if (!yes && !no) return fail(null, "ກະລຸນາເລືອກວ່າ ມີບັນຊີ Dupoin ແລ້ວ ຫຼື ຍັງບໍ່ມີ");
+  const mt5 = digits($("mt5").value);
+  if (yes && (mt5.length < 5 || mt5.length > 12)) return fail($("mt5"), "ເລກ MT5 ຕ້ອງເປັນຕົວເລກ 5 ຫາ 12 ໂຕ");
+  return { first, last, phone, yes, mt5: yes ? mt5 : "" };
+}
+
+$("f").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  if (busy) return;
+  const v = check();
+  if (!v) return;
+  busy = true; $("go").disabled = true; $("go").textContent = "ກຳລັງສົ່ງ…"; $("msg").textContent = "";
+  try {
+    const r = await TM.rpc("register_guest", { p_first: v.first, p_last: v.last, p_phone: v.phone, p_has_account: v.yes, p_mt5: v.mt5 });
+    show(v, r && r.updated);
+  } catch (e) {
+    const m = String((e && e.message) || "");
+    $("msg").textContent =
+      m.includes("bad_name") ? "ກະລຸນາກວດຊື່ ແລະ ນາມສະກຸນ" :
+      m.includes("bad_phone") ? "ເບີໂທບໍ່ຖືກຕ້ອງ ກະລຸນາກວດຄືນ" :
+      m.includes("bad_mt5") ? "ເລກ MT5 ຕ້ອງເປັນຕົວເລກ 5 ຫາ 12 ໂຕ" :
+      m.includes("full") ? "ລະບົບປິດຮັບລົງທະບຽນແລ້ວ ກະລຸນາຕິດຕໍ່ແອດມິນ" :
+      "ສົ່ງບໍ່ສຳເລັດ ກະລຸນາກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່";
+  }
+  busy = false; $("go").disabled = false; $("go").textContent = "ລົງທະບຽນ";
+});
+
+function show(v, updated){
+  $("f").hidden = true; $("done").hidden = false;
+  $("dSum").innerHTML = "ຊື່: <b>" + TM.esc(v.first + " " + v.last) + "</b><br>ເບີໂທ: <b>" + TM.esc(v.phone) + "</b><br>MT5 Dupoin: <b>" + (v.mt5 ? TM.esc(v.mt5) : "ຍັງບໍ່ມີ") + "</b>";
+  if (v.yes) {
+    $("dIcon").textContent = "✅";
+    $("dTitle").textContent = updated ? "ອັບເດດຂໍ້ມູນແລ້ວ" : "ລົງທະບຽນສຳເລັດ";
+    $("dText").textContent = "ທີມງານຈະຕິດຕໍ່ຫາທ່ານ ເພື່ອຢືນຢັນບ່ອນນັ່ງ";
+    $("dOpen").hidden = true;
+  } else {
+    $("dIcon").textContent = "📝";
+    $("dTitle").textContent = "ໄດ້ຮັບຂໍ້ມູນແລ້ວ";
+    $("dText").textContent = "ຂັ້ນຕອນຕໍ່ໄປ: ເປີດບັນຊີ Dupoin ແລ້ວກັບມາລິ້ງນີ້ ເພື່ອໃສ່ເລກ MT5 (ໃຊ້ເບີໂທເດີມ)";
+    $("dOpen").hidden = false;
+  }
+  window.scrollTo(0, 0);
+}
+$("again").addEventListener("click", () => { $("done").hidden = true; $("f").hidden = false; sync(); });
+sync();
+</script>
+</body>
+</html>

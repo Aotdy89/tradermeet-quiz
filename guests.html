@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ລາຍຊື່ລົງທະບຽນ TRADER MEET 2</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04202b">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;800&family=Noto+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  html,body{height:auto;min-height:100%}
+  [hidden]{display:none!important}
+  body{padding:18px 16px 30px}
+  .wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+  h1{font-size:22px;font-weight:800}
+  .login{max-width:340px;margin:12vh auto 0;display:flex;flex-direction:column;gap:12px;text-align:center}
+  .in{width:100%;padding:13px 14px;border-radius:12px;border:2px solid var(--line);background:#02161e;color:var(--ink);font-size:18px;text-align:center}
+  .in:focus{outline:none;border-color:var(--gold)}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .stats{display:flex;flex-wrap:wrap;gap:8px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:13px;color:var(--mut)}
+  .stat b{display:block;font-size:22px;color:var(--gold);font-variant-numeric:tabular-nums}
+  .tools{display:flex;gap:8px;flex-wrap:wrap}
+  .btn.s{padding:9px 14px;font-size:14px;border-radius:10px;box-shadow:none}
+  .tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#06303f}
+  table{border-collapse:collapse;width:100%;min-width:820px;font-size:14px}
+  th,td{padding:9px 10px;text-align:left;border-bottom:1px solid #124a5c;vertical-align:middle}
+  th{font-size:12px;color:var(--mut);font-weight:600;background:#052733;position:sticky;top:0}
+  td.n{font-variant-numeric:tabular-nums}
+  tr.cancelled td{opacity:.45}
+  select,.note{background:#02161e;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px}
+  .note{width:150px}
+  .tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;background:#5a1d20;color:#ffb3b5}
+  .del{background:none;color:var(--bad);font-size:13px;text-decoration:underline}
+  .empty{padding:28px;text-align:center;color:var(--mut)}
+  .msg{font-size:14px;color:var(--bad);min-height:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="login" id="login">
+    <div class="logos"><img class="if" src="logo_ifund.jpg" alt=""><img src="logo_dupoin.png" alt=""></div>
+    <h1>ລາຍຊື່ລົງທະບຽນ</h1>
+    <input class="in" id="pin" type="password" inputmode="numeric" placeholder="PIN ແອດມິນ" autocomplete="off">
+    <button class="btn" id="enter">ເຂົ້າສູ່ລະບົບ</button>
+    <div class="msg" id="lmsg"></div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="bar">
+      <h1>ລາຍຊື່ລົງທະບຽນ TRADER MEET <span class="gold">ຄັ້ງທີ 2</span></h1>
+      <div class="tools">
+        <button class="btn sec s" id="reload">ໂຫຼດໃໝ່</button>
+        <button class="btn sec s" id="copy">ກັອບປີ້ໄປ Excel</button>
+        <button class="btn s" id="csv">ດາວໂຫຼດ CSV</button>
+      </div>
+    </div>
+    <div class="stats" style="margin:12px 0">
+      <div class="stat"><b id="sAll">0</b>ລົງທະບຽນທັງໝົດ</div>
+      <div class="stat"><b id="sMt5">0</b>ມີເລກ MT5 ແລ້ວ</div>
+      <div class="stat"><b id="sNo">0</b>ຍັງບໍ່ມີບັນຊີ</div>
+      <div class="stat"><b id="sOk">0 / 30</b>ຢືນຢັນບ່ອນນັ່ງແລ້ວ</div>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>#</th><th>ເວລາລົງທະບຽນ</th><th>ຊື່</th><th>ນາມສະກຸນ</th><th>ເບີໂທ</th><th>MT5 Dupoin</th><th>ສະຖານະ</th><th>ໝາຍເຫດ</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="empty" hidden>ຍັງບໍ່ມີຄົນລົງທະບຽນ</div>
+    </div>
+    <div class="msg" id="amsg"></div>
+  </div>
+</div>
+<div class="toast hidden" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let PIN = "", G = [];
+TM.init();
+const STATUS = { new: "ໃໝ່", confirmed: "ຢືນຢັນແລ້ວ", cancelled: "ຍົກເລີກ" };
+function toast(t){ const e = $("toast"); e.textContent = t; e.classList.remove("hidden"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.add("hidden"), 2200); }
+function when(s){ const d = new Date(s); const p = n => String(n).padStart(2, "0"); return p(d.getDate()) + "/" + p(d.getMonth() + 1) + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+
+async function login(pin){
+  $("lmsg").textContent = "";
+  try { await TM.rpc("admin_login", { p_pin: pin }); }
+  catch (e) { $("lmsg").textContent = "PIN ບໍ່ຖືກຕ້ອງ"; return; }
+  PIN = pin; try { sessionStorage.setItem("tm_pin", pin); } catch (e) {}
+  $("login").hidden = true; $("app").hidden = false; load();
+}
+$("enter").addEventListener("click", () => login($("pin").value.trim()));
+$("pin").addEventListener("keydown", e => { if (e.key === "Enter") login($("pin").value.trim()); });
+
+async function load(){
+  try { G = await TM.rpc("admin_guests", { p_pin: PIN }) || []; $("amsg").textContent = ""; }
+  catch (e) { $("amsg").textContent = "ໂຫຼດຂໍ້ມູນບໍ່ສຳເລັດ"; return; }
+  render();
+}
+function render(){
+  const live = G.filter(g => g.status !== "cancelled");
+  $("sAll").textContent = live.length;
+  $("sMt5").textContent = live.filter(g => g.mt5).length;
+  $("sNo").textContent = live.filter(g => !g.mt5).length;
+  $("sOk").textContent = G.filter(g => g.status === "confirmed").length + " / 30";
+  $("empty").hidden = G.length > 0;
+  $("rows").innerHTML = G.map((g, i) =>
+    '<tr class="' + g.status + '" data-id="' + g.id + '">' +
+    '<td class="n">' + (i + 1) + '</td><td class="n">' + when(g.created_at) + '</td>' +
+    '<td>' + TM.esc(g.first_name) + '</td><td>' + TM.esc(g.last_name) + '</td>' +
+    '<td class="n">' + TM.esc(g.phone) + '</td>' +
+    '<td class="n">' + (g.mt5 ? TM.esc(g.mt5) : '<span class="tag">ຍັງບໍ່ມີບັນຊີ</span>') + '</td>' +
+    '<td><select class="st">' + Object.keys(STATUS).map(k => '<option value="' + k + '"' + (k === g.status ? " selected" : "") + '>' + STATUS[k] + '</option>').join("") + '</select></td>' +
+    '<td><input class="note" maxlength="300" value="' + TM.esc(g.note) + '"></td>' +
+    '<td><button class="del" data-step="0">ລົບ</button></td></tr>').join("");
+}
+$("rows").addEventListener("change", async e => {
+  const tr = e.target.closest("tr"); if (!tr) return;
+  const id = tr.dataset.id;
+  try {
+    if (e.target.classList.contains("st")) await TM.rpc("admin_guest_update", { p_pin: PIN, p_id: id, p_status: e.target.value, p_note: null });
+    else if (e.target.classList.contains("note")) await TM.rpc("admin_guest_update", { p_pin: PIN, p_id: id, p_status: null, p_note: e.target.value });
+    toast("ບັນທຶກແລ້ວ"); load();
+  } catch (err) { toast("ບັນທຶກບໍ່ສຳເລັດ"); }
+});
+$("rows").addEventListener("click", async e => {
+  const b = e.target.closest(".del"); if (!b) return;
+  if (b.dataset.step === "0") { b.dataset.step = "1"; b.textContent = "ກົດອີກຄັ້ງເພື່ອລົບ"; setTimeout(() => { b.dataset.step = "0"; b.textContent = "ລົບ"; }, 4000); return; }
+  try { await TM.rpc("admin_guest_delete", { p_pin: PIN, p_id: b.closest("tr").dataset.id }); toast("ລົບແລ້ວ"); load(); } catch (err) { toast("ລົບບໍ່ສຳເລັດ"); }
+});
+function table(sep){
+  const q = v => { v = String(v ?? ""); return sep === "," ? '"' + v.replace(/"/g, '""') + '"' : v.replace(/[\t\r\n]+/g, " "); };
+  const head = ["No", "Registered", "First name", "Last name", "Phone", "Dupoin MT5", "Status", "Note"];
+  return [head].concat(G.map((g, i) => [i + 1, when(g.created_at), g.first_name, g.last_name, g.phone, g.mt5 || "", g.status, g.note])).map(r => r.map(q).join(sep)).join("\r\n");
+}
+$("reload").addEventListener("click", () => { load(); toast("ໂຫຼດໃໝ່ແລ້ວ"); });
+$("copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(table("\t")); toast("ກັອບປີ້ແລ້ວ ວາງໃສ່ Excel ໄດ້ເລີຍ"); } catch (e) { toast("ກັອບປີ້ບໍ່ສຳເລັດ"); } });
+$("csv").addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + table(",")], { type: "text/csv;charset=utf-8" }));
+  a.download = "TraderMeet2_guests.csv"; document.body.appendChild(a); a.click(); a.remove();
+});
+try { const p = sessionStorage.getItem("tm_pin"); if (p) login(p); } catch (e) {}
+setInterval(() => { if (PIN && document.visibilityState === "visible" && !document.activeElement.classList.contains("note")) load(); }, 30000);
+</script>
+</body>
+</html>
